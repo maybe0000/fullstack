@@ -21,14 +21,22 @@ const App = () => {
   const getRandomQuote = () => {
     setSelected(Math.floor(Math.random() * anecdotes.length));
   }
+
+  const voteForQuote = () => {
+    votes[selected] += 1
+  }
    
   const [selected, setSelected] = useState(0)
+  const [votes, setVote] = useState(Array(anecdotes.length).fill(0))
+  console.log(votes)
 
   return (
     <div>
-      {anecdotes[selected]}
+      <p>{anecdotes[selected]}</p>
+      <p>has {votes[selected]} votes</p>
       <br></br>
       <Button onClick={getRandomQuote} text='next quote' />
+      <Button onClick={voteForQuote} text='vote' />
     </div>
   )
 }
