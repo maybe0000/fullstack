@@ -1,10 +1,5 @@
 import { useState } from 'react'
-
-const Person = ({ name }) => {
-  return (
-    <p>{name}</p>
-  )
-}
+import Person from './Person'
 
 const App = () => {
 
@@ -15,10 +10,15 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-    const newPerson = {
-      name: newName
+    if (persons.some(person => person.name === newName)) {
+      alert(`${newName} is already added to the phonebook`)
     }
-    setPersons(persons.concat(newPerson));
+    else {
+      const newPerson = {
+        name: newName
+      }
+      setPersons(oldPersons => oldPersons.concat(newPerson));
+    }
     setNewName('');
   }
 
