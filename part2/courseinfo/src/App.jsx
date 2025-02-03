@@ -8,8 +8,15 @@ const Part = ({ part }) => {
 
 const Content = ({ parts }) => {
   return (
-    <ul>{parts.map(part => <Part key={part.id} part={part} />)}</ul>
+    <>
+      <ul style={{ listStyleType: "none", padding: 0 }}>{parts.map(part => <Part key={part.id} part={part} />)}</ul>
+      <Total total={parts.reduce((sum, i) => sum + i.exercises, 0)} />
+    </>
   )
+}
+
+const Total = ({ total }) => {
+  return <p style={{ fontWeight: "bold" }}>total of {total} exercises</p>
 }
 
 const Course = ({ course }) => {
@@ -38,6 +45,11 @@ const App = () => {
         name: 'State of a component',
         exercises: 14,
         id: 3
+      },
+      {
+        name: 'Redux',
+        exercises: 11,
+        id: 4
       }
     ]
   }
