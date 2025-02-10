@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+
 import Person from './components/Person'
 import Header from './components/Header'
 import Filter from './components/Filter'
@@ -7,12 +9,19 @@ import Phonebook from './components/Phonebook'
 
 const App = () => {
 
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ])
+  const [persons, setPersons] = useState([])
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
+  console.log('render', persons.length, 'persons')
+  console.log(persons)
 
   const [newPerson, setNewPerson] = useState({
     newName: '',
@@ -21,13 +30,16 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
+    const newId = persons.length > 0 ? String(persons.length + 1) : '1';
+
     if (persons.some(person => person.name.toUpperCase() === newPerson.newName.toUpperCase())) {
       alert(`${newPerson.newName} is already added to the phonebook`)
     }
     else {
       const personToAdd = {
         name: newPerson.newName,
-        number: newPerson.newNumber
+        number: newPerson.newNumber,
+        id: newId
       }
       setPersons(oldPersons => oldPersons.concat(personToAdd));
     }
