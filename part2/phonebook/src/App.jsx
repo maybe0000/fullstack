@@ -28,7 +28,7 @@ const App = () => {
     newNumber: ''
   })
 
-  const addPerson = (event) => {
+  const addPerson = event => {
     event.preventDefault();
     const newId = persons.length > 0 ? String(persons.length + 1) : '1';
 
@@ -41,7 +41,11 @@ const App = () => {
         number: newPerson.newNumber,
         id: newId
       }
-      setPersons(oldPersons => oldPersons.concat(personToAdd));
+      axios
+        .post('http://localhost:3001/persons', personToAdd)
+        .then(response => {
+          setPersons(oldPersons => oldPersons.concat(personToAdd));
+        })
     }
     setNewPerson({
       newName: '',
