@@ -6,6 +6,7 @@ import Header from './components/Header'
 import Filter from './components/Filter'
 import Form from './components/Form'
 import Phonebook from './components/Phonebook'
+import DeleteButton from './components/DeleteButton'
 
 const App = () => {
 
@@ -73,6 +74,16 @@ const App = () => {
 
   const filteredPersons = persons.filter(person => person.name.toUpperCase().includes(filterText.toUpperCase()));
 
+  const deletePerson = (person) => {
+    if (confirm(`Delete ${person.name} ?`)) {
+      personService.deletePerson(person.id).then(() =>
+        personService.getAll()).then(initialPersons => {
+          // console.log('promise fulfilled')
+          setPersons(initialPersons)
+        })
+    }
+  }
+
   return (
     <div>
       <Header title='Phonebook' />
@@ -80,7 +91,7 @@ const App = () => {
       <Header title='Add New Entry' />
       <Form addPerson={addPerson} newPerson={newPerson} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
       <Header title='Numbers' />
-      <Phonebook filteredPersons={filteredPersons} Person={Person} />
+      <Phonebook filteredPersons={filteredPersons} Person={Person} DeleteButton={DeleteButton} deletePerson={deletePerson} />
     </div>
   )
 }
