@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons'
 
 import Person from './components/Person'
 import Header from './components/Header'
@@ -12,16 +12,14 @@ const App = () => {
   const [persons, setPersons] = useState([])
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      })
+    // console.log('effect')
+    personService.getAll().then(initialPersons => {
+      // console.log('promise fulfilled')
+      setPersons(initialPersons)
+    })
   }, [])
-  console.log('render', persons.length, 'persons')
-  console.log(persons)
+  // console.log('render', persons.length, 'persons')
+  // console.log(persons)
 
   const [newPerson, setNewPerson] = useState({
     newName: '',
@@ -41,10 +39,10 @@ const App = () => {
         number: newPerson.newNumber,
         id: newId
       }
-      axios
-        .post('http://localhost:3001/persons', personToAdd)
-        .then(response => {
-          setPersons(oldPersons => oldPersons.concat(personToAdd));
+      personService
+        .create(personToAdd)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson));
         })
     }
     setNewPerson({
