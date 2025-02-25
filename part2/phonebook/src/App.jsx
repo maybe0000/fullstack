@@ -31,8 +31,20 @@ const App = () => {
     event.preventDefault();
     const newId = persons.length > 0 ? String(persons.length + 1) : '1';
 
-    if (persons.some(person => person.name.toUpperCase() === newPerson.newName.toUpperCase())) {
-      alert(`${newPerson.newName} is already added to the phonebook`)
+    const person = persons.find(p => p.name.toUpperCase() === newPerson.newName.toUpperCase())
+
+    if (person) {
+      if (confirm(`${newPerson.newName} is already added to the phonebook, replace the old number with a new one?`)) {
+        const updatedPerson = {
+          ...person,
+          number: newPerson.newNumber
+        }
+        personService
+          .update(person.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(p => (p.id === returnedPerson.id ? returnedPerson : p)))
+          })
+      }
     }
     else {
       const personToAdd = {
