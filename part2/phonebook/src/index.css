@@ -1,8 +1,17 @@
+.notification {
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
 .msg {
   background: lightgray;
   color: darkgreen;
   border: 1px solid green;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
+}
+
+.error {
+  background: lightgray;
+  color: red;
+  border: 1px solid red;
 }

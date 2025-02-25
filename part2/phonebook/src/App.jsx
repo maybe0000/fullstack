@@ -28,17 +28,35 @@ const App = () => {
     newNumber: ''
   })
 
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState({
+    content: '',
+    error: 0
+  })
 
   const displayMessage = (action, name) => {
-    if (action == 'a') {
-      setMessage(`Added ${name}`)
+    if (action === 'a') {
+      setMessage({
+        content: `Added ${name}`,
+        error: 0
+      })
     }
-    else if (action == 'u') {
-      setMessage(`Changed number of ${name}`)
+    else if (action === 'u') {
+      setMessage({
+        content: `Changed number of ${name}`,
+        error: 0
+      })
+    }
+    else if (action === 'e') {
+      setMessage({
+        content: `Information of ${name} has already been removed from the server`,
+        error: 1
+      })
     }
     setTimeout(() => {
-      setMessage('')
+      setMessage({
+        content: '',
+        error: 0
+      })
     }, 5000)
   }
 
@@ -58,8 +76,12 @@ const App = () => {
           .update(person.id, updatedPerson)
           .then(returnedPerson => {
             setPersons(persons.map(p => (p.id === returnedPerson.id ? returnedPerson : p)))
+            displayMessage('u', updatedPerson.name)
           })
-        displayMessage('u', updatedPerson.name)
+          .catch(err => {
+            console.error('Error updating person', err)
+            displayMessage('e', updatedPerson.name)
+          })
       }
     }
     else {
@@ -116,7 +138,7 @@ const App = () => {
   return (
     <div>
       <Header title='Phonebook' />
-      <Notification message={message} />
+      <Notification content={message.content} type={message.error} />
       <Filter filterText={filterText} handleFilterChange={handleFilterChange} />
       <Header title='Add New Entry' />
       <Form addPerson={addPerson} newPerson={newPerson} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
