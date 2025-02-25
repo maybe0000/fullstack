@@ -7,6 +7,7 @@ import Filter from './components/Filter'
 import Form from './components/Form'
 import Phonebook from './components/Phonebook'
 import DeleteButton from './components/DeleteButton'
+import Notification from './components/Notification'
 
 const App = () => {
 
@@ -27,6 +28,20 @@ const App = () => {
     newNumber: ''
   })
 
+  const [message, setMessage] = useState('')
+
+  const displayMessage = (action, name) => {
+    if (action == 'a') {
+      setMessage(`Added ${name}`)
+    }
+    else if (action == 'u') {
+      setMessage(`Changed number of ${name}`)
+    }
+    setTimeout(() => {
+      setMessage('')
+    }, 5000)
+  }
+
   const addPerson = event => {
     event.preventDefault();
     const newId = persons.length > 0 ? String(persons.length + 1) : '1';
@@ -44,6 +59,7 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.map(p => (p.id === returnedPerson.id ? returnedPerson : p)))
           })
+        displayMessage('u', updatedPerson.name)
       }
     }
     else {
@@ -55,7 +71,8 @@ const App = () => {
       personService
         .create(personToAdd)
         .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson));
+          setPersons(persons.concat(returnedPerson))
+          displayMessage('a', returnedPerson.name)
         })
     }
     setNewPerson({
@@ -99,6 +116,7 @@ const App = () => {
   return (
     <div>
       <Header title='Phonebook' />
+      <Notification message={message} />
       <Filter filterText={filterText} handleFilterChange={handleFilterChange} />
       <Header title='Add New Entry' />
       <Form addPerson={addPerson} newPerson={newPerson} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
