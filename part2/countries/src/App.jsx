@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import './App.css'
+import Country from './components/Country'
 
 const App = () => {
   const [value, setValue] = useState('')
@@ -9,12 +10,8 @@ const App = () => {
   const [message, setMessage] = useState('')
   const [countries, setCountries] = useState([])
 
-  const displayMessage = () => {
-    setMessage('Country not found.')
-    setTimeout(() => {
-      setMessage('')
-    }, 5000)
-  }
+
+  // what if API can't be reached
 
   useEffect(() => {
     axios
@@ -22,7 +19,6 @@ const App = () => {
       .then(response => setCountries(response.data))
   }, [])
 
-  // skip if country is not defined
   useEffect(() => {
     if (country) {
       console.log('fetching country data...')
@@ -35,32 +31,42 @@ const App = () => {
         .catch(err => {
           setCountryData({})
           console.error('Country not found', err)
-          displayMessage()
+          setMessage('Country not found.')
           setValue('')
           setCountry(null)
         })
     }
   }, [country])
 
+  const filteredCountries = countries.filter(c => c.name.common.toLowerCase().includes(value.toLowerCase()))
+  const filteredCountriesLen = filteredCountries.length
+
+  useEffect(() => {
+    if (filteredCountriesLen > 10) {
+      setMessage('Too many matches, specify another filter')
+    }
+    else {
+      setMessage('')
+    }
+  }, [filteredCountriesLen])
+
   const handleChange = (e) => {
     setValue(e.target.value)
-    // console.log('handleChange ', value)
   }
 
   const onSearch = (e) => {
     e.preventDefault()
     setCountry(value.toLowerCase())
-    // console.log('onSearch ', country)
   }
 
   return (
     <div>
       <form onSubmit={onSearch}>
-        find countries: <input value={value} onChange={handleChange} />
+        find countries: <input value={value} onChange={handleChange} id="country-input" />
       </form>
       {message === '' ? null : <p>{message}</p>}
-      {Object.keys(countryData).length ? <div>{countryData.name.common}</div> : null}
-      {countries.length && value.length ? countries.filter(c => c.name.common.toLowerCase().includes(value.toLowerCase())).map(c => <div key={c.name.common}>{c.name.common}</div>) : null}
+      {countries.length && value.length && filteredCountriesLen === 1 ? <Country country={filteredCountries[0]} /> :
+        countries.length && value.length && filteredCountriesLen <= 10 ? filteredCountries.map(c => <div key={c.name.common}>{c.name.common}</div>) : null}
     </div>
   )
 
