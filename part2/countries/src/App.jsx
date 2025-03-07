@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import Button from './components/Button'
 import Country from './components/Country'
-import Weather from './components/Weather'
 
 const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_KEY
 const WEATHER_API_URL = 'https://api.openweathermap.org/data/2.5/weather'
@@ -78,7 +77,7 @@ const App = () => {
 
   const showCountry = (country) => {
     return (
-      <Country country={country} />
+      <Country country={country} weather={weather} />
     )
   }
 
@@ -88,7 +87,7 @@ const App = () => {
         find countries: <input value={value} onChange={handleChange} id="country-input" />
       </form>
       {message === '' ? null : <p>{message}</p>}
-      {countries.length && value.length && filteredCountriesLen === 1 ? <><Country country={filteredCountries[0]} /><Weather capital={filteredCountries[0].capital[0]} weather={weather} /></> :
+      {countries.length && value.length && filteredCountriesLen === 1 ? <><Country country={filteredCountries[0]} weather={weather} /></> :
         countries.length && value.length && filteredCountriesLen <= 10 ? filteredCountries.map(c => <div key={c.name.common} className='show-country'>{c.name.common}<Button country={c} showCountry={showCountry} /></div>) : null}
     </div>
   )
