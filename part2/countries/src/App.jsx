@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import './App.css'
+import Button from './components/Button'
 import Country from './components/Country'
 
 const App = () => {
@@ -42,7 +43,7 @@ const App = () => {
   const filteredCountriesLen = filteredCountries.length
 
   useEffect(() => {
-    if (filteredCountriesLen > 10) {
+    if (filteredCountriesLen > 10 && value.length) {
       setMessage('Too many matches, specify another filter')
     }
     else {
@@ -59,6 +60,12 @@ const App = () => {
     setCountry(value.toLowerCase())
   }
 
+  const showCountry = (country) => {
+    return (
+      <Country country={country} />
+    )
+  }
+
   return (
     <div>
       <form onSubmit={onSearch}>
@@ -66,7 +73,7 @@ const App = () => {
       </form>
       {message === '' ? null : <p>{message}</p>}
       {countries.length && value.length && filteredCountriesLen === 1 ? <Country country={filteredCountries[0]} /> :
-        countries.length && value.length && filteredCountriesLen <= 10 ? filteredCountries.map(c => <div key={c.name.common}>{c.name.common}</div>) : null}
+        countries.length && value.length && filteredCountriesLen <= 10 ? filteredCountries.map(c => <div key={c.name.common} className='show-country'>{c.name.common}<Button country={c} showCountry={showCountry} /></div>) : null}
     </div>
   )
 

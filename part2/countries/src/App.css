@@ -1,7 +1,4 @@
 #root {
-  position: fixed;
-  top: 0;
-  left: 0;
   padding: 10px;
   font-size: 20px;
 }
@@ -13,4 +10,27 @@ p {
 .flag {
   width: 75%;
   height: auto;
+}
+
+.show-country {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  margin: 5px;
+}
+
+.button-country {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn {
+  color: black;
+  background-color: aliceblue;
+  font-size: 15px;
+  min-width: 100px;
+}
+
+.btn-hide {
+  align-self: flex-end;
 }
