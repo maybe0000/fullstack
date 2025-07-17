@@ -70,6 +70,14 @@ app.post('/api/persons', (req, res) => {
         })
     }
 
+    const nameExists = notes.find(note => note.name === body.name)
+
+    if (nameExists) {
+        return res.status(400).json({
+            error: "name must be unique"
+        })
+    }
+
     const note = {
         "id": newId,
         "name": body.name,
