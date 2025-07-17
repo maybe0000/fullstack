@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let notes = [
     {
         "id": "1",
@@ -57,6 +59,27 @@ app.delete('/api/persons/:id', (req, res) => {
 
     res.status(204).end()
 })
+
+app.post('/api/persons', (req, res) => {
+    const newId = Math.floor(Math.random() * 1_000_000_000)
+    const body = req.body
+
+    if (!body || !body.name || !body.number) {
+        return res.status(400).json({
+            error: "content missing"
+        })
+    }
+
+    const note = {
+        "id": newId,
+        "name": body.name,
+        "number": body.number
+    }
+    notes = notes.concat(note)
+    res.json(note)
+})
+
+
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT)
