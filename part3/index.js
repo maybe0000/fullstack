@@ -29,9 +29,17 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(notes);
+    res.json(notes)
 })
 
+app.get('/info', (req, res) => {
+    const noteLength = notes.length
+    const currTime = new Date()
+    res.send(`
+        <p>Phonebook has info for ${noteLength} people</p>
+        ${currTime}
+    `)
+})
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT)
