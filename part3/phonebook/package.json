@@ -10,15 +10,16 @@
     "dev-vite": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:ui": "rm -rf dist && npm run build",
+    "deploy:full": "npm run build:ui && git add dist && git commit -m uibuild && git push"
   },
   "author": "Sara Markic",
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
+    "axios": "^1.7.9",
     "express": "^5.1.0",
     "morgan": "^1.10.0",
-    "axios": "^1.7.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import personService from './services/persons'
 
-import Person from './components/Person'
-import Header from './components/Header'
+import DeleteButton from './components/DeleteButton'
 import Filter from './components/Filter'
 import Form from './components/Form'
-import Phonebook from './components/Phonebook'
-import DeleteButton from './components/DeleteButton'
+import Header from './components/Header'
 import Notification from './components/Notification'
+import Person from './components/Person'
+import Phonebook from './components/Phonebook'
 
 const App = () => {
 
