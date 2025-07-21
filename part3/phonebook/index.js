@@ -46,10 +46,7 @@ app.get('/api/persons/:id', (req, res) => {
         } else {
             res.status(404).end()
         }
-    }).catch(error => {
-        console.log(error)
-        res.status(400).send({ error: 'malformatted id' })
-    })
+    }).catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -93,6 +90,17 @@ app.post('/api/persons', (req, res) => {
         res.json(savedNote)
     })
 })
+
+const errorHandler = (err, req, res, next) => {
+    console.log(err)
+
+    if (err.name == 'CastError') {
+        return res.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(err)
+
+}
 
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
