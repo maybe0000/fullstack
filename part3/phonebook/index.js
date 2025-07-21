@@ -56,12 +56,7 @@ app.delete('/api/persons/:id', (req, res) => {
         .then(() => {
             res.status(204).end()
         })
-        .catch(err => {
-            console.error(err)
-            res.status(500).send({ error: "Something went wrong" })
-        })
-
-    res.status(204).end()
+        .catch(err => next(error))
 })
 
 app.post('/api/persons', (req, res) => {
@@ -89,6 +84,26 @@ app.post('/api/persons', (req, res) => {
     person.save().then(savedNote => {
         res.json(savedNote)
     })
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+    const { name, number } = req.body
+    const id = req.params.id
+
+    Person.findById(id)
+        .then(person => {
+            if (!person) {
+                return res.status(404).end()
+            }
+            person.name = name
+            person.number = number
+
+            return person.save().then(updatedPerson => {
+                res.json(updatedPerson)
+            })
+        })
+        .catch(error => next(error))
+
 })
 
 const errorHandler = (err, req, res, next) => {
