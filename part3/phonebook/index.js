@@ -1,8 +1,10 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 // const cors = require('cors')
-
 const morgan = require('morgan')
+const Person = require('./models/person')
+const PORT = process.env.PORT
 
 app.use(express.static('dist'))
 app.use(express.json())
@@ -44,7 +46,10 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(notes)
+    // res.json(notes)
+    Person.find({}).then(persons => {
+        res.json(persons)
+    })
 })
 
 app.get('/info', (req, res) => {
@@ -59,22 +64,36 @@ app.get('/info', (req, res) => {
 app.get('/api/persons/:id', (req, res) => {
     const id = req.params.id
     const note = notes.find(note => note.id === id)
-    if (note) {
-        res.json(note)
-    } else {
-        res.status(400).end()
-    }
+    // if (note) {
+    //     res.json(note)
+    // } else {
+    //     res.status(400).end()
+    // }
+    Person.findById(id).then(person => {
+        if (person) {
+            res.json(person)
+        } else {
+            res.status(400).end()
+        }
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id
-    notes = notes.filter(note => note.id !== id)
+    // notes = notes.filter(note => note.id !== id)
+    Person.findByIdAndDelete(id)
+        .then(() => {
+            res.status(204).end()
+        })
+        .catch(err => {
+            console.error(err)
+            res.status(500).send({ error: "Something went wrong" })
+        })
 
     res.status(204).end()
 })
 
 app.post('/api/persons', (req, res) => {
-    const newId = Math.floor(Math.random() * 1_000_000_000)
     const body = req.body
 
     if (!body || !body.name || !body.number) {
@@ -83,23 +102,23 @@ app.post('/api/persons', (req, res) => {
         })
     }
 
-    const nameExists = notes.find(note => note.name === body.name)
+    // const nameExists = notes.find(note => note.name === body.name)
 
-    if (nameExists) {
-        return res.status(400).json({
-            error: "name must be unique"
-        })
-    }
+    // if (nameExists) {
+    //     return res.status(400).json({
+    //         error: "name must be unique"
+    //     })
+    // }
 
-    const note = {
-        "id": newId,
+    const person = new Person({
         "name": body.name,
         "number": body.number
-    }
-    notes = notes.concat(note)
-    res.json(note)
+    })
+
+    person.save().then(savedNote => {
+        res.json(savedNote)
+    })
 })
 
-const PORT = process.env.PORT || 3001
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
