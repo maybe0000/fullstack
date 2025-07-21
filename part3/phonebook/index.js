@@ -28,14 +28,17 @@ app.get('/api/persons', (req, res) => {
     })
 })
 
-// app.get('/info', (req, res) => {
-//     const noteLength = notes.length
-//     const currTime = new Date()
-//     res.send(`
-//         <p>Phonebook has info for ${noteLength} people</p>
-//         ${currTime}
-//     `)
-// })
+app.get('/info', (req, res, next) => {
+    Person.countDocuments({})
+        .then(noteLength => {
+            const currTime = new Date()
+            res.send(`
+            <p>Phonebook has info for ${noteLength} people</p>
+            ${currTime}
+        `)
+        })
+        .catch(err => next(err))
+})
 
 app.get('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
@@ -49,14 +52,14 @@ app.get('/api/persons/:id', (req, res, next) => {
     }).catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     const id = req.params.id
     // notes = notes.filter(note => note.id !== id)
     Person.findByIdAndDelete(id)
         .then(() => {
             res.status(204).end()
         })
-        .catch(err => next(error))
+        .catch(err => next(err))
 })
 
 app.post('/api/persons', (req, res) => {
