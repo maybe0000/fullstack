@@ -84,8 +84,13 @@ const App = () => {
             displayMessage('u', updatedPerson.name)
           })
           .catch(err => {
-            console.error('Error updating person', err)
-            displayMessage('e', updatedPerson.name)
+            const errMsg = err.response?.data?.error || 'Unexpected error'
+            console.error('Error updating person', errMsg)
+            if (errMsg.includes('validation')) {
+              displayMessage('ne', errMsg)
+            } else {
+              displayMessage('e', updatedPerson.name)
+            }
           })
       }
     }
