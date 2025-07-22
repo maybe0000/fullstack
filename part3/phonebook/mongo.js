@@ -11,44 +11,44 @@ mongoose.set('strictQuery', false)
 mongoose.connect(url)
 
 const personSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        minLength: 3,
-        required: true
-    },
-    number: String
+  name: {
+    type: String,
+    minLength: 3,
+    required: true
+  },
+  number: String
 })
 
 const Person = mongoose.model('Person', personSchema)
 
 if (process.argv.length < 3) {
-    console.log('give password as argument')
-    process.exit(1)
+  console.log('give password as argument')
+  process.exit(1)
 }
 
 if (process.argv.length === 3) {
-    console.log('phonebook:')
-    Person.find({}).then(result => {
-        result.forEach(person => {
-            console.log(`${person.name} ${person.number}`)
-        })
-        mongoose.connection.close()
+  console.log('phonebook:')
+  Person.find({}).then(result => {
+    result.forEach(person => {
+      console.log(`${person.name} ${person.number}`)
     })
-} else if (process.argv.length == 5) {
+    mongoose.connection.close()
+  })
+} else if (process.argv.length === 5) {
 
-    const person = new Person({
-        name: personName,
-        number: personNumber,
-    })
+  const person = new Person({
+    name: personName,
+    number: personNumber,
+  })
 
-    person.save().then(result => {
-        console.log(`added ${personName} number ${personNumber} to phonebook`)
-        mongoose.connection.close()
-    })
+  person.save().then(() => {
+    console.log(`added ${personName} number ${personNumber} to phonebook`)
+    mongoose.connection.close()
+  })
 
 } else {
-    console.log('Invalid number of arguments')
-    process.exit(1)
+  console.log('Invalid number of arguments')
+  process.exit(1)
 }
 
 
