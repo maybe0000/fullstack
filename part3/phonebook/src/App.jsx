@@ -51,6 +51,11 @@ const App = () => {
         content: `Information of ${name} has already been removed from the server`,
         error: 1
       })
+    } else if (action === 'ne') {
+      setMessage({
+        content: name,
+        error: 1
+      })
     }
     setTimeout(() => {
       setMessage({
@@ -95,6 +100,10 @@ const App = () => {
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
           displayMessage('a', returnedPerson.name)
+        })
+        .catch(error => {
+          const errMsg = error.response?.data?.error || 'An error occured';
+          displayMessage('ne', errMsg)
         })
     }
     setNewPerson({
