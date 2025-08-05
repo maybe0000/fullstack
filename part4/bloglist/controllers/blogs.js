@@ -25,6 +25,7 @@ blogsRouter.get('/:id', async (request, response, next) => {
 
 blogsRouter.post('/', async (request, response, next) => {
     try {
+        console.log('POST /api/blogs body:', request.body)
         if (request.body.title && request.body.url) {
             const blog = new Blog({ ...request.body, likes: request.body.likes || 0 })
             const savedBlog = await blog.save()
