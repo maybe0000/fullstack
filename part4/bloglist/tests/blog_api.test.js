@@ -105,6 +105,21 @@ test('unique identifier property is named id and not _id', async () => {
 
 })
 
+test('if likes property is missing from a request, it will default to 0', async () => {
+    const newBlog = {
+        "title": "Testing title",
+        "author": "La la",
+        "url": "http://www.google.com"
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+
+    assert.strictEqual(response.body.likes, 0)
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
