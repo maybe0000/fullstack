@@ -93,6 +93,18 @@ test('a blog can be deleted', async () => {
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
 })
 
+test('unique identifier property is named id and not _id', async () => {
+    const response = await api
+        .get('/api/blogs')
+        .expect(200)
+
+    response.body.forEach(blog => {
+        assert.ok(blog.hasOwnProperty('id'), 'Missing id property')
+        assert.ok(!blog.hasOwnProperty('_id'), 'Should not expose _id property')
+    })
+
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
