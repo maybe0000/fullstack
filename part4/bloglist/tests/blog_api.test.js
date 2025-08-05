@@ -90,7 +90,7 @@ test('a blog can be deleted', async () => {
 
     assert(!titles.includes(blogToDelete.title))
 
-    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+    assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1)
 })
 
 test('unique identifier property is named id and not _id', async () => {
