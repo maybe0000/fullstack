@@ -120,6 +120,39 @@ test('if likes property is missing from a request, it will default to 0', async 
     assert.strictEqual(response.body.likes, 0)
 })
 
+
+test('adding a blog without title or url results in bad request', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+
+    const newBlogWithoutTitle = {
+        "author": "La la",
+        "url": "http://www.google.com",
+        "likes": 1232323
+    }
+
+    const newBlogWithoutUrl = {
+        "title": "A title",
+        "author": "La la",
+        "likes": 1232323
+    }
+
+    const resNoTitle = await api
+        .post('/api/blogs')
+        .send(newBlogWithoutTitle)
+        .expect(400)
+
+    const resNoUrl = await api
+        .post('/api/blogs')
+        .send(newBlogWithoutUrl)
+        .expect(400)
+
+    const blogsAtEnd = await helper.blogsInDb()
+
+    assert.strictEqual(blogsAtStart.length, blogsAtEnd.length)
+
+})
+
+
 after(async () => {
     await mongoose.connection.close()
 })
