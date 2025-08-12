@@ -1,9 +1,19 @@
 const blogsRouter = require('express').Router()
+const jwt = require('jsonwebtoken')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+
+const getTokenFrom = request => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')) {
+        return authorization.replace('Bearer ', '')
+    }
+    return null
+}
 
 blogsRouter.get('/', async (request, response) => {
     try {
-        const blogs = await Blog.find({})
+        const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
         response.json(blogs)
     } catch (err) {
         response.status(500).json({ error: 'Failed to fetch blogs' })
@@ -25,10 +35,34 @@ blogsRouter.get('/:id', async (request, response, next) => {
 
 blogsRouter.post('/', async (request, response, next) => {
     try {
-        console.log('POST /api/blogs body:', request.body)
-        if (request.body.title && request.body.url) {
-            const blog = new Blog({ ...request.body, likes: request.body.likes || 0 })
+        const body = request.body
+        console.log('POST /api/blogs body:', body)
+        // console.log('JWT SECRET:', process.env.SECRET)
+        const token = getTokenFrom(request)
+        console.log('Token extracted:', token)
+
+        const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+
+        if (!decodedToken.id) {
+            return response.status(401).json({ error: 'token invalid' })
+        }
+
+        if (body.title && body.url) {
+            const user = await User.findById(body.userId)
+            if (!user) {
+                return response.status(400).json({ error: "userId missing or not valid" })
+            }
+
+            const blog = new Blog({
+                ...body,
+                likes: body.likes || 0,
+                user: user._id
+            })
+
             const savedBlog = await blog.save()
+            user.blogs = user.blogs.concat(savedBlog._id)
+            await user.save()
+
             response.status(201).json(savedBlog)
         } else {
             response.status(400).end()

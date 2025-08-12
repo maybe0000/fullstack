@@ -1,10 +1,12 @@
 const assert = require('node:assert')
+const bcrypt = require('bcrypt')
 const { test, after, beforeEach, describe } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -62,16 +64,23 @@ describe('viewing a specific blog', () => {
 })
 
 describe('addition of a new blog', () => {
+    beforeEach(async () => {
+        token = await helper.createAndLoginTestUser(api)
+    })
+
     test('a valid blog can be added', async () => {
+        const user = await User.findOne({ username: 'testuser' })
         const newBlog = {
             "title": "Blog post 3",
             "author": "La la",
             "url": "http://www.google.com",
-            "likes": 1232323
+            "likes": 1232323,
+            "userId": user.id
         }
 
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -117,11 +126,13 @@ describe('addition of a new blog', () => {
 
         const resNoTitle = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlogWithoutTitle)
             .expect(400)
 
         const resNoUrl = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlogWithoutUrl)
             .expect(400)
 
@@ -193,16 +204,23 @@ describe('updating a blog', () => {
 })
 
 describe('data quality of properties', () => {
+    beforeEach(async () => {
+        token = await helper.createAndLoginTestUser(api)
+    })
 
     test('if likes property is missing from a request, it will default to 0', async () => {
+        const user = await User.findOne({ username: 'testuser' })
+
         const newBlog = {
             "title": "Testing title",
             "author": "La la",
-            "url": "http://www.google.com"
+            "url": "http://www.google.com",
+            "userId": user.id
         }
 
         const response = await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
             .send(newBlog)
             .expect(201)
 
@@ -210,6 +228,117 @@ describe('data quality of properties', () => {
     })
 
 })
+
+describe('when there is initially one user in db', () => {
+    beforeEach(async () => {
+        await User.deleteMany({})
+
+        const passwordHash = await bcrypt.hash('secret', 10)
+        const user = new User({ username: 'root', passwordHash })
+
+        await user.save()
+    })
+
+    test('creation succeeds with a fresh username', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: 'smarkic',
+            name: 'Sara Markic',
+            password: 'tajno'
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+
+        const usersAtEnd = await helper.usersInDb()
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
+
+        const usernames = usersAtEnd.map(u => u.username)
+        assert(usernames.includes(newUser.username))
+    })
+
+    test('creation fails with proper statuscode and message if username already taken', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: 'root',
+            name: 'Superuser',
+            password: 'tajno'
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        const usersAtEnd = await helper.usersInDb()
+        assert(result.body.error.includes('expected `username` to be unique'))
+
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
+})
+
+describe('invalid user creation', () => {
+    beforeEach(async () => {
+        await User.deleteMany({})
+        const passwordHash = await bcrypt.hash('secret', 10)
+        await new User({ username: 'root', passwordHash }).save()
+    })
+
+    test('fails with 400 if username is missing', async () => {
+        const newUser = { name: 'No Username', password: 'validpass' }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        assert(result.body.error.includes('Username is required'))
+    })
+
+    test('fails with 400 if username is shorter than 3 chars', async () => {
+        const newUser = { username: 'ab', name: 'Too Short', password: 'validpass' }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        assert(result.body.error.includes('Username must be at least 3 characters long'))
+    })
+
+    test('fails with 400 if password is missing', async () => {
+        const newUser = { username: 'validuser', name: 'No Password' }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        assert(result.body.error.includes('Password must be at least 3 characters long'))
+    })
+
+    test('fails with 400 if password is shorter than 3 chars', async () => {
+        const newUser = { username: 'validuser', name: 'Short Password', password: 'ab' }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        assert(result.body.error.includes('Password must be at least 3 characters long'))
+    })
+})
+
 
 after(async () => {
     await mongoose.connection.close()
