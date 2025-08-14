@@ -5,3 +5,8 @@ Content-Type: application/json
     "username": "smarkic",
     "password": "tajno"
 }
+
+# {
+#     "username": "root",
+#     "password": "tajno"
+# }
