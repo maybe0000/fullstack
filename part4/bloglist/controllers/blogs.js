@@ -12,7 +12,7 @@ blogsRouter.get('/', async (request, response) => {
     }
 })
 
-blogsRouter.get('/:id', middleware.userExtractor, async (request, response, next) => {
+blogsRouter.get('/:id', async (request, response, next) => {
     try {
         const blog = await Blog.findById(request.params.id)
         if (blog) {

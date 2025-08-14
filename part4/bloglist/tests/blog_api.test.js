@@ -26,7 +26,9 @@ describe('when there is initially some blogs saved', () => {
     test('all blogs are returned', async () => {
         const response = await api.get('/api/blogs')
 
-        assert.strictEqual(response.body.length, helper.initialBlogs.length)
+        const blogsAtStart = await helper.blogsInDb()
+
+        assert.strictEqual(response.body.length, blogsAtStart.length)
     })
 
     test('a specific blog is within the returned blogs', async () => {
@@ -71,6 +73,8 @@ describe('addition of a new blog', () => {
 
     test('a valid blog can be added', async () => {
         const user = await User.findOne({ username: 'testuser' })
+        const blogsAtStart = await helper.blogsInDb()
+
         const newBlog = {
             'title': 'Blog post 3',
             'author': 'La la',
@@ -87,7 +91,7 @@ describe('addition of a new blog', () => {
             .expect('Content-Type', /application\/json/)
 
         const blogsAtEnd = await helper.blogsInDb()
-        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+        assert.strictEqual(blogsAtEnd.length, blogsAtStart.length + 1)
 
         const titles = blogsAtEnd.map(b => b.title)
         assert(titles.includes('Blog post 3'))
@@ -146,21 +150,34 @@ describe('addition of a new blog', () => {
 })
 
 describe('deletion of a blog', () => {
+    let token
+
+    beforeEach(async () => {
+        token = await helper.createAndLoginTestUser(api)
+    })
+
     test('a blog can be deleted', async () => {
-        const blogsAtStart = await helper.blogsInDb()
-        const blogToDelete = blogsAtStart[0]
+        const newBlog = {
+            title: 'Blog to delete',
+            author: 'Test Author',
+            url: 'http://example.com',
+            likes: 1
+        }
+
+        const createdBlog = await api
+            .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newBlog)
+            .expect(201)
 
         await api
-            .delete(`/api/blogs/${blogToDelete.id}`)
+            .delete(`/api/blogs/${createdBlog.body.id}`)
+            .set('Authorization', `Bearer ${token}`)
             .expect(204)
 
         const blogsAtEnd = await helper.blogsInDb()
-
-        const titles = blogsAtEnd.map(b => b.title)
-
-        assert(!titles.includes(blogToDelete.title))
-
-        assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1)
+        const deleted = blogsAtEnd.find(b => b.id === createdBlog.body.id)
+        assert.strictEqual(deleted, undefined)
     })
 
 })
@@ -179,28 +196,47 @@ test('unique identifier property is named id and not _id', async () => {
 })
 
 describe('updating a blog', () => {
+    let token
+    let blogId
+    let newBlog
 
-    test('a blog can be updated', async () => {
-        const blogsAtStart = await helper.blogsInDb()
-        const blogToUpdate = blogsAtStart[0]
-
-        const updatedData = {
-            ...blogToUpdate,
-            likes: (blogToUpdate.likes || 0) + 1
+    beforeEach(async () => {
+        token = await helper.createAndLoginTestUser(api)
+        newBlog = {
+            title: 'Blog to update',
+            author: 'Test Author',
+            url: 'http://example.com',
+            likes: 10
         }
 
         const res = await api
-            .put(`/api/blogs/${blogToUpdate.id}`)
-            .send(updatedData)
+            .post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newBlog)
+            .expect(201)
+
+        blogId = res.body.id
+    })
+
+    test('a blog can be updated', async () => {
+
+        const updatedBlog = {
+            ...newBlog,
+            likes: 33
+        }
+
+        const res = await api
+            .put(`/api/blogs/${blogId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send(updatedBlog)
             .expect(200)
             .expect('Content-Type', /application\/json/)
 
-        assert.strictEqual(res.body.likes, updatedData.likes)
-
         const blogsAtEnd = await helper.blogsInDb()
-        const updated = blogsAtEnd.find(b => b.id === blogToUpdate.id)
+        const updated = blogsAtEnd.find(b => b.id === blogId)
 
-        assert.strictEqual(updated.likes, updatedData.likes)
+        assert.strictEqual(updated.likes, updatedBlog.likes)
+
     })
 })
 
@@ -339,6 +375,26 @@ describe('invalid user creation', () => {
 
         assert(result.body.error.includes('Password must be at least 3 characters long'))
     })
+})
+
+test('fails with 401 Unauthorized if token is not provided', async () => {
+    const user = await User.findOne({ username: 'testuser' })
+    const blogsAtStart = await helper.blogsInDb()
+    const newBlog = {
+        title: 'Unauthorized Blog',
+        author: 'No Token Author',
+        url: 'http://notoken.com',
+        likes: 5
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
 })
 
 
