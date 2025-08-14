@@ -64,6 +64,7 @@ describe('viewing a specific blog', () => {
 })
 
 describe('addition of a new blog', () => {
+    let token
     beforeEach(async () => {
         token = await helper.createAndLoginTestUser(api)
     })
@@ -71,11 +72,11 @@ describe('addition of a new blog', () => {
     test('a valid blog can be added', async () => {
         const user = await User.findOne({ username: 'testuser' })
         const newBlog = {
-            "title": "Blog post 3",
-            "author": "La la",
-            "url": "http://www.google.com",
-            "likes": 1232323,
-            "userId": user.id
+            'title': 'Blog post 3',
+            'author': 'La la',
+            'url': 'http://www.google.com',
+            'likes': 1232323,
+            'userId': user.id
         }
 
         await api
@@ -113,24 +114,24 @@ describe('addition of a new blog', () => {
         const blogsAtStart = await helper.blogsInDb()
 
         const newBlogWithoutTitle = {
-            "author": "La la",
-            "url": "http://www.google.com",
-            "likes": 1232323
+            'author': 'La la',
+            'url': 'http://www.google.com',
+            'likes': 1232323
         }
 
         const newBlogWithoutUrl = {
-            "title": "A title",
-            "author": "La la",
-            "likes": 1232323
+            'title': 'A title',
+            'author': 'La la',
+            'likes': 1232323
         }
 
-        const resNoTitle = await api
+        await api
             .post('/api/blogs')
             .set('Authorization', `Bearer ${token}`)
             .send(newBlogWithoutTitle)
             .expect(400)
 
-        const resNoUrl = await api
+        await api
             .post('/api/blogs')
             .set('Authorization', `Bearer ${token}`)
             .send(newBlogWithoutUrl)
@@ -171,8 +172,8 @@ test('unique identifier property is named id and not _id', async () => {
         .expect(200)
 
     response.body.forEach(blog => {
-        assert.ok(blog.hasOwnProperty('id'), 'Missing id property')
-        assert.ok(!blog.hasOwnProperty('_id'), 'Should not expose _id property')
+        assert.ok(Object.prototype.hasOwnProperty.call(blog, 'id'), 'Missing id property')
+        assert.ok(!Object.prototype.hasOwnProperty.call(blog, '_id'), 'Should not expose _id property')
     })
 
 })
@@ -204,6 +205,7 @@ describe('updating a blog', () => {
 })
 
 describe('data quality of properties', () => {
+    let token
     beforeEach(async () => {
         token = await helper.createAndLoginTestUser(api)
     })
@@ -212,10 +214,10 @@ describe('data quality of properties', () => {
         const user = await User.findOne({ username: 'testuser' })
 
         const newBlog = {
-            "title": "Testing title",
-            "author": "La la",
-            "url": "http://www.google.com",
-            "userId": user.id
+            'title': 'Testing title',
+            'author': 'La la',
+            'url': 'http://www.google.com',
+            'userId': user.id
         }
 
         const response = await api

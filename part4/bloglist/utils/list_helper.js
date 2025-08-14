@@ -1,6 +1,7 @@
 const _ = require('lodash')
 
-const dummy = blogs => 1;
+// eslint-disable-next-line no-unused-vars
+const dummy = _blogs => 1;
 
 const totalLikes = blogs => {
     return blogs.length === 0 ? 0 : blogs.reduce((sum, b) => sum + b.likes, 0)

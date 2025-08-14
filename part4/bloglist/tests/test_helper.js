@@ -4,16 +4,16 @@ const bcrypt = require('bcrypt')
 
 const initialBlogs = [
     {
-        "title": "Blog post 1",
-        "author": "Jane Doe",
-        "url": "http://www.google.com",
-        "likes": 4
+        'title': 'Blog post 1',
+        'author': 'Jane Doe',
+        'url': 'http://www.google.com',
+        'likes': 4
     },
     {
-        "title": "Blog post 2",
-        "author": "John Doe",
-        "url": "http://www.google.com",
-        "likes": 23123
+        'title': 'Blog post 2',
+        'author': 'John Doe',
+        'url': 'http://www.google.com',
+        'likes': 23123
     }
 ]
 
@@ -50,7 +50,7 @@ async function createAndLoginTestUser(api, username = 'testuser', password = 'ta
             password
         })
 
-    token = loginResponse.body.token
+    const token = loginResponse.body.token
 
     return token
 }
