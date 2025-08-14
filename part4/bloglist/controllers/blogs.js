@@ -41,16 +41,17 @@ blogsRouter.post('/', async (request, response, next) => {
         const token = getTokenFrom(request)
         console.log('Token extracted:', token)
 
-        const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+        const decodedToken = jwt.verify(token, process.env.SECRET)
 
         if (!decodedToken.id) {
             return response.status(401).json({ error: 'token invalid' })
         }
 
+
         if (body.title && body.url) {
-            const user = await User.findById(body.userId)
+            const user = await User.findById(decodedToken.id)
             if (!user) {
-                return response.status(400).json({ error: "userId missing or not valid" })
+                return response.status(401).json({ error: "user not found" })
             }
 
             const blog = new Blog({
