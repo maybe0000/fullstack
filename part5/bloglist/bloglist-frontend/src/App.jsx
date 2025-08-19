@@ -74,6 +74,8 @@ const App = () => {
         username, password,
       })
 
+      blogService.setToken(user.token)
+
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
@@ -134,7 +136,7 @@ const App = () => {
         onChange={handleBlogChange}
       />
       </div>
-      <button type="submit">save</button>
+      <button type="submit">create</button>
     </form>
   )
 
