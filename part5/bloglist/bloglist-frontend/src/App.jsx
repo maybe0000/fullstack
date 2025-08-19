@@ -16,7 +16,8 @@ const App = () => {
   })
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState(null)
+  const [msgType, setMsgType] = useState(null)
   const [user, setUser] = useState(null)
 
   useEffect(() => {
@@ -46,6 +47,12 @@ const App = () => {
           url: '',
           likes: 0
         })
+        setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
+        setMsgType('success')
+        setTimeout(() => {
+          setMessage(null)
+          setMsgType(null)
+        }, 5000)
       })
   }
 
@@ -84,9 +91,11 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('Wrong credentials')
+      setMessage('Wrong credentials')
+      setMsgType('error')
       setTimeout(() => {
-        setErrorMessage(null)
+        setMessage(null)
+        setMsgType(null)
       }, 5000)
     }
   }
@@ -142,7 +151,7 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={errorMessage} />
+      <Notification message={message} msgType={msgType} />
       {user === null
         ? <div>
           <h2>log in to application</h2>

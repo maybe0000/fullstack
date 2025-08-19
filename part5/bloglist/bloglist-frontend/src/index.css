@@ -1,11 +1,21 @@
-.error {
-    color: red;
-    background: lightgrey;
-    font-size: 20px;
-    border-style: solid;
+.notification {
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
+    font-size: 20px;
+    border-style: solid;
+}
+
+.success {
+    background: lightgray;
+    color: darkgreen;
+    border: 1px solid green;
+}
+
+.error {
+    background: lightgray;
+    color: red;
+    border: 1px solid red;
 }
 
 .blogFormEl {
