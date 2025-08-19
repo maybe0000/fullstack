@@ -1,0 +1,22 @@
+.error {
+    color: red;
+    background: lightgrey;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.blogFormEl {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 10px 0;
+    width: 300px;
+}
+
+.blogFormEl input {
+    width: 200px;
+    text-align: right;
+}
