@@ -11,14 +11,6 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newBlog, setNewBlog] = useState({
-    title: '',
-    author: '',
-    url: '',
-    likes: 0
-  })
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [message, setMessage] = useState(null)
   const [msgType, setMsgType] = useState(null)
   const [user, setUser] = useState(null)
@@ -40,18 +32,11 @@ const App = () => {
     }
   }, [])
 
-  const addBlog = (event) => {
-    event.preventDefault()
+  const addBlog = (newBlog) => {
     blogService
       .create(newBlog)
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
-        setNewBlog({
-          title: '',
-          author: '',
-          url: '',
-          likes: 0
-        })
         setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
         setMsgType('success')
         blogFormRef.current.toggleVisibility()
@@ -62,33 +47,12 @@ const App = () => {
       })
   }
 
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value)
-  }
-
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value)
-  }
-
-  const handleBlogChange = (event) => {
-    const { name, value } = event.target
-
-    setNewBlog({
-      ...newBlog,
-      [name]: value,
-      likes: 0
-    })
-  }
-
-  const handleLogout = (event) => {
+  const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
-    setUsername('')
-    setPassword('')
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async ({ username, password }) => {
 
     try {
       const user = await loginService.login({
@@ -102,8 +66,6 @@ const App = () => {
       )
 
       setUser(user)
-      setUsername('')
-      setPassword('')
     } catch (exception) {
       setMessage('Wrong credentials')
       setMsgType('error')
@@ -123,10 +85,6 @@ const App = () => {
           <Togglable buttonLabel='login' ref={blogFormRef}>
             <LoginForm
               handleLogin={handleLogin}
-              handlePasswordChange={handlePasswordChange}
-              handleUsernameChange={handleUsernameChange}
-              username={username}
-              password={password}
             />
           </Togglable>
         </div>
@@ -135,9 +93,7 @@ const App = () => {
           <p>{user.name} logged in<LogoutButton handleLogout={handleLogout} /></p>
           <Togglable buttonLabel='create new blog' ref={blogFormRef}>
             <BlogForm
-              addBlog={addBlog}
-              newBlog={newBlog}
-              handleBlogChange={handleBlogChange}
+              createBlog={addBlog}
             />
           </Togglable>
           <br />
