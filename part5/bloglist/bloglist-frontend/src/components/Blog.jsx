@@ -19,9 +19,11 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
     <div style={blogStyle}>
       {blog.title} {blog.author}
       <button onClick={handleClick}>{isClicked ? 'hide' : 'view'}</button>
-      {isClicked &&
+      {isClicked && (
         <div>
-          <a href={blog.url} target='_blank'>{blog.url}</a>
+          <a href={blog.url} target='_blank' rel="noreferrer">
+            {blog.url}
+          </a>
           <br />
           likes {blog.likes} <button onClick={handleLike}>like</button>
           <br />
@@ -29,7 +31,7 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
           <br />
           <button onClick={handleDelete}>remove</button>
         </div>
-      }
+      )}
     </div>
   )
 }

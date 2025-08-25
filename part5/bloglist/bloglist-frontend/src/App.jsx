@@ -42,7 +42,9 @@ const App = () => {
     try {
       const returnedBlog = await blogs.create(newBlog)
       setBlogs(blogs.concat(returnedBlog))
-      setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
+      setMessage(
+        `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
+      )
       setMsgType('success')
       blogFormRef.current.toggleVisibility()
       setTimeout(() => {
@@ -65,17 +67,15 @@ const App = () => {
   }
 
   const handleLogin = async ({ username, password }) => {
-
     try {
       const user = await loginService.login({
-        username, password,
+        username,
+        password
       })
 
       blogService.setToken(user.token)
 
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      )
+      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
 
       setUser(user)
     } catch (exception) {
@@ -89,7 +89,7 @@ const App = () => {
   }
 
   const updateBlogLikes = async (id) => {
-    const blogToUpdate = blogs.find(b => b.id === id)
+    const blogToUpdate = blogs.find((b) => b.id === id)
     const updatedBlog = {
       ...blogToUpdate,
       likes: blogToUpdate.likes + 1,
@@ -98,7 +98,7 @@ const App = () => {
 
     try {
       const returnedBlog = await blogService.update(id, updatedBlog)
-      setBlogs(blogs.map(b => b.id !== id ? b : returnedBlog))
+      setBlogs(blogs.map((b) => (b.id !== id ? b : returnedBlog)))
     } catch (err) {
       setMessage('Error updating likes')
       setMsgType('error')
@@ -110,14 +110,21 @@ const App = () => {
   }
 
   const removeBlog = async (id) => {
-    const blogToRemove = blogs.find(b => b.id === id)
+    const blogToRemove = blogs.find((b) => b.id === id)
     try {
-      if (window.confirm(`Remove blog ${blogToRemove.title} by ${blogToRemove.author}?`)) {
+      if (
+        window.confirm(
+          `Remove blog ${blogToRemove.title} by ${blogToRemove.author}?`
+        )
+      ) {
         await blogService.remove(id)
-        setBlogs(blogs.filter(b => b.id !== id))
+        setBlogs(blogs.filter((b) => b.id !== id))
       }
     } catch (err) {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      if (
+        err.response &&
+        (err.response.status === 401 || err.response.status === 403)
+      ) {
         setMessage('Unauthorized to delete this blog')
       } else {
         setMessage('Failed to delete blog')
@@ -133,36 +140,36 @@ const App = () => {
   return (
     <div>
       <Notification message={message} msgType={msgType} />
-      {user === null
-        ? <div>
+      {user === null ? (
+        <div>
           <h2>log in to application</h2>
           <Togglable buttonLabel='login' ref={blogFormRef}>
-            <LoginForm
-              handleLogin={handleLogin}
-            />
+            <LoginForm handleLogin={handleLogin} />
           </Togglable>
         </div>
-        : <div>
+      ) : (
+        <div>
           <h2>Blogs</h2>
-          <p>{user.name} logged in<LogoutButton handleLogout={handleLogout} /></p>
+          <p>
+            {user.name} logged in
+            <LogoutButton handleLogout={handleLogout} />
+          </p>
           <Togglable buttonLabel='create new blog' ref={blogFormRef}>
-            <BlogForm
-              createBlog={addBlog}
-            />
+            <BlogForm createBlog={addBlog} />
           </Togglable>
           <br />
           {blogs
             .sort((a, b) => b.likes - a.likes)
-            .map(blog =>
+            .map((blog) => (
               <Blog
                 key={blog.id}
                 blog={blog}
                 handleLike={() => updateBlogLikes(blog.id)}
                 handleDelete={() => removeBlog(blog.id)}
               />
-            )}
+            ))}
         </div>
-      }
+      )}
     </div>
   )
 }
