@@ -1,8 +1,12 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
-test('renders blog title and author', () => {
-  const blog = {
+let blog
+let mockHandler
+
+beforeEach(() => {
+  blog = {
     title: 'Testing title of the blog',
     author: 'Author Example',
     url: 'https://www.example.com',
@@ -10,17 +14,25 @@ test('renders blog title and author', () => {
     user: { username: 'exampleuser' }
   }
 
-  const mockHandler = vi.fn()
+  mockHandler = vi.fn()
 
-  const { container } = render(
+  render(
     <Blog blog={blog} handleLike={mockHandler} handleDelete={mockHandler} />
   )
 
-  // console.log(container.innerHTML)
+})
 
-  // console.log(container.textContent)
-
+test('renders blog title and author', () => {
   expect(screen.getByText('Testing title of the blog Author Example')).toBeDefined()
   expect(screen.queryByText('https://www.example.com')).toBeNull()
   expect(screen.queryByText(/likes/i)).toBeNull()
+})
+
+test('clicking the button shows the url and number of likes', async () => {
+  const user = userEvent.setup()
+  const button = screen.getByText('view')
+  await user.click(button)
+
+  expect(screen.getByText('https://www.example.com')).toBeDefined()
+  expect(screen.getByText(/likes 123/i)).toBeDefined()
 })
