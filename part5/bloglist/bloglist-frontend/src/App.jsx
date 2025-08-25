@@ -28,7 +28,7 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
-      // blogService.setToken(user.token)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -76,6 +76,27 @@ const App = () => {
     }
   }
 
+  const updateBlogLikes = async (id) => {
+    const blogToUpdate = blogs.find(b => b.id === id)
+    const updatedBlog = {
+      ...blogToUpdate,
+      likes: blogToUpdate.likes + 1,
+      user: blogToUpdate.user.id
+    }
+
+    try {
+      const returnedBlog = await blogService.update(id, updatedBlog)
+      setBlogs(blogs.map(b => b.id !== id ? b : returnedBlog))
+    } catch (err) {
+      setMessage('Error updating likes')
+      setMsgType('error')
+      setTimeout(() => {
+        setMessage(null)
+        setMsgType(null)
+      }, 5000)
+    }
+  }
+
   return (
     <div>
       <Notification message={message} msgType={msgType} />
@@ -98,7 +119,11 @@ const App = () => {
           </Togglable>
           <br />
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              handleLike={() => updateBlogLikes(blog.id)}
+            />
           )}
         </div>
       }
