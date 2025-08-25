@@ -36,3 +36,17 @@ test('clicking the button shows the url and number of likes', async () => {
   expect(screen.getByText('https://www.example.com')).toBeDefined()
   expect(screen.getByText(/likes 123/i)).toBeDefined()
 })
+
+test('clicking the like button twice calls event handler twice', async () => {
+  const user = userEvent.setup()
+  const button = screen.getByText('view')
+  await user.click(button)
+
+  const likeButton = screen.getByText('like')
+  await user.click(likeButton)
+  await user.click(likeButton)
+  
+  expect(mockHandler.mock.calls).toHaveLength(2)
+
+  //expect(mockHandler).toHaveBeenCalledTimes(2)
+})
