@@ -18,9 +18,15 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then(initialBlogs =>
-      setBlogs(initialBlogs)
-    )
+    const fetchBlogs = async () => {
+      try {
+        const initialBlogs = await blogService.getAll()
+        setBlogs(initialBlogs)
+      } catch (err) {
+        console.error('Failed to fetch blogs:', err)
+      }
+    }
+    fetchBlogs()
   }, [])
 
   useEffect(() => {
@@ -32,19 +38,25 @@ const App = () => {
     }
   }, [])
 
-  const addBlog = (newBlog) => {
-    blogService
-      .create(newBlog)
-      .then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
-        setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
-        setMsgType('success')
-        blogFormRef.current.toggleVisibility()
-        setTimeout(() => {
-          setMessage(null)
-          setMsgType(null)
-        }, 5000)
-      })
+  const addBlog = async (newBlog) => {
+    try {
+      const returnedBlog = await blogs.create(newBlog)
+      setBlogs(blogs.concat(returnedBlog))
+      setMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
+      setMsgType('success')
+      blogFormRef.current.toggleVisibility()
+      setTimeout(() => {
+        setMessage(null)
+        setMsgType(null)
+      }, 5000)
+    } catch (err) {
+      setMessage('Failed to add blog')
+      setMsgType('error')
+      setTimeout(() => {
+        setMessage(null)
+        setMsgType(null)
+      }, 5000)
+    }
   }
 
   const handleLogout = () => {
@@ -97,6 +109,27 @@ const App = () => {
     }
   }
 
+  const removeBlog = async (id) => {
+    const blogToRemove = blogs.find(b => b.id === id)
+    try {
+      if (window.confirm(`Remove blog ${blogToRemove.title} by ${blogToRemove.author}?`)) {
+        await blogService.remove(id)
+        setBlogs(blogs.filter(b => b.id !== id))
+      }
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        setMessage('Unauthorized to delete this blog')
+      } else {
+        setMessage('Failed to delete blog')
+      }
+      setMsgType('error')
+      setTimeout(() => {
+        setMessage(null)
+        setMsgType(null)
+      }, 5000)
+    }
+  }
+
   return (
     <div>
       <Notification message={message} msgType={msgType} />
@@ -125,6 +158,7 @@ const App = () => {
                 key={blog.id}
                 blog={blog}
                 handleLike={() => updateBlogLikes(blog.id)}
+                handleDelete={() => removeBlog(blog.id)}
               />
             )}
         </div>
