@@ -46,7 +46,7 @@ test('clicking the like button twice calls event handler twice', async () => {
   const likeButton = screen.getByText('like')
   await user.click(likeButton)
   await user.click(likeButton)
-  
+
   expect(mockHandler.mock.calls).toHaveLength(2)
 
   //expect(mockHandler).toHaveBeenCalledTimes(2)
