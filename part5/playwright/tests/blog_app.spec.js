@@ -60,6 +60,14 @@ test('Login form is shown', async ({ page }) => {
         await expect(page.getByText('likes 1')).toBeVisible()
     })
 
+    test('user who added blog can delete the blog', async ({ page }) => {
+        await createBlog(page, 'Test Title','Test Author','http://example.com')
+        page.once('dialog', async (dialog) => await dialog.accept())
+        await page.getByRole('button', { name: 'view' }).click()
+        await page.getByRole('button', { name: 'remove' }).click()
+        await expect(page.getByText('Test Title Test Author')).not.toBeVisible()
+    })
+
   })
 
 })
