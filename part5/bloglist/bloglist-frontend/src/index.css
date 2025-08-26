@@ -14,7 +14,7 @@
 
 .error {
     background: lightgray;
-    color: red;
+    color: rgb(255, 0, 0);
     border: 1px solid red;
 }
 

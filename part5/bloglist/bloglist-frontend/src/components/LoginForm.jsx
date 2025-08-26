@@ -23,22 +23,26 @@ const LoginForm = ({ handleLogin }) => {
   return (
     <form onSubmit={onSubmit}>
       <div>
+        <label>
         username
-        <input
-          type='text'
-          value={username}
-          name='Username'
-          onChange={handleUsernameChange}
-        />
+          <input
+            type='text'
+            value={username}
+            name='Username'
+            onChange={handleUsernameChange}
+          />
+        </label>
       </div>
       <div>
+        <label>
         password
-        <input
-          type='password'
-          value={password}
-          name='Password'
-          onChange={handlePasswordChange}
-        />
+          <input
+            type='password'
+            value={password}
+            name='Password'
+            onChange={handlePasswordChange}
+          />
+        </label>
       </div>
       <button type='submit'>login</button>
     </form>
