@@ -40,7 +40,7 @@ const App = () => {
 
   const addBlog = async (newBlog) => {
     try {
-      const returnedBlog = await blogs.create(newBlog)
+      const returnedBlog = await blogService.create(newBlog)
       setBlogs(blogs.concat(returnedBlog))
       setMessage(
         `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
