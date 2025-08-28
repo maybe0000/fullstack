@@ -15,8 +15,8 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
     setIsClicked(!isClicked)
   }
 
-  console.log(user)
-  console.log(blog)
+  // console.log(user)
+  // console.log(blog)
 
   return (
     <div style={blogStyle} className='blog'>

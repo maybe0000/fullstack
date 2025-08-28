@@ -96,6 +96,58 @@ test('Login form is shown', async ({ page }) => {
         await expect(removeButton).toHaveCount(0)
     })
 
+    test('blogs are arranged in the order according to descending likes', async ({ page }) => {
+        await expect(page.getByText('Blogs')).toBeVisible()
+        await createBlog(page, 'Blog 1', 'Author', 'http://example.com')
+        await expect(page.getByText(`a new blog Blog 1 by Author added`)).toBeVisible()
+
+        await createBlog(page, 'Blog 2', 'Author', 'http://example.com')
+        await expect(page.getByText(`a new blog Blog 2 by Author added`)).toBeVisible()
+
+        await createBlog(page, 'Blog 3', 'Author', 'http://example.com')
+        await expect(page.getByText(`a new blog Blog 3 by Author added`)).toBeVisible()
+
+        const blog = title => page.locator('.blog').filter({ hasText: title });
+
+        const blog1 = blog('Blog 1')
+        const viewButton1 = blog1.getByRole('button', { name: 'view' });
+        await viewButton1.click();
+        const likeButton1 = blog1.getByRole('button', { name: 'like' });
+        await likeButton1.click();
+        await expect(blog('Blog 1').getByText('likes 1')).toBeVisible()
+        await likeButton1.click();
+        await expect(blog('Blog 1').getByText('likes 2')).toBeVisible()
+
+        const blog2 = blog('Blog 2')
+        const viewButton2 = blog2.getByRole('button', { name: 'view' });
+        await viewButton2.click();
+        const likeButton2 = blog2.getByRole('button', { name: 'like' });
+        await likeButton2.click();
+        await expect(blog('Blog 2').getByText('likes 1')).toBeVisible()
+        await likeButton2.click();
+        await expect(blog('Blog 2').getByText('likes 2')).toBeVisible()
+        await likeButton2.click();
+        await expect(blog('Blog 2').getByText('likes 3')).toBeVisible()
+
+        const blog3 = blog('Blog 3')
+        const viewButton3 = blog3.getByRole('button', { name: 'view' });
+        await viewButton3.click();
+        const likeButton3 = blog3.getByRole('button', { name: 'like' });
+        await likeButton3.click();
+        await expect(blog('Blog 3').getByText('likes 1')).toBeVisible()
+
+        const blogs = page.locator('.blog');
+
+        const firstBlog = blogs.nth(0);
+        const secondBlog = blogs.nth(1);
+        const thirdBlog = blogs.nth(2);
+
+        await expect(firstBlog).toContainText('Blog 2')
+        await expect(secondBlog).toContainText('Blog 1')
+        await expect(thirdBlog).toContainText('Blog 3')
+
+    })
+
   })
 
 })
