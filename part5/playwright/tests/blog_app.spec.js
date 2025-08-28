@@ -11,6 +11,13 @@ describe('Blog app', () => {
             password: 'tajno'
         }
     })
+    await request.post('/api/users', {
+        data: {
+          name: 'Root User',
+          username: 'root',
+          password: 'tajno'
+        }
+    })
 
     await page.goto('/')
   })
@@ -61,11 +68,32 @@ test('Login form is shown', async ({ page }) => {
     })
 
     test('user who added blog can delete the blog', async ({ page }) => {
+        await expect(page.getByText('Blogs')).toBeVisible()
         await createBlog(page, 'Test Title','Test Author','http://example.com')
         page.once('dialog', async (dialog) => await dialog.accept())
         await page.getByRole('button', { name: 'view' }).click()
         await page.getByRole('button', { name: 'remove' }).click()
         await expect(page.getByText('Test Title Test Author')).not.toBeVisible()
+    })
+
+    test('only the user who added the blog sees the delete button', async ({ page }) => {
+        await expect(page.getByText('Blogs')).toBeVisible()
+        await createBlog(page, 'Unable to delete', 'Author', 'http://example.com')
+        await expect(page.getByText(`a new blog Unable to delete by Author added`)).toBeVisible()
+    
+        await page.getByRole('button', { name: 'logout' }).click()
+
+        const locator = page.getByText('log in to application')
+        await expect(locator).toBeVisible()
+        await expect(page.getByRole('button', { name: 'login' })).toBeVisible()
+
+        await loginWith(page, 'root', 'tajno')
+        await expect(page.getByText('Blogs')).toBeVisible()
+        await expect(page.getByText(`a new blog Unable to delete by Author added`)).toBeVisible()
+        await page.getByRole('button', { name: 'view' }).click()
+
+        const removeButton = page.getByRole('button', { name: 'remove' })
+        await expect(removeButton).toHaveCount(0)
     })
 
   })
